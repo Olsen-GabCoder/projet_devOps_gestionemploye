@@ -5,8 +5,8 @@ pipeline {
 		stage('Checkout') {
 			steps {
 				git branch: 'master',
-                    url: 'https://github.com/Olsen-GabCoder/projet_devOps_gestionemploye.git',
-                    credentialsId: 'github-token' // Assurez-vous que cet ID est correct
+                    credentialsId: 'github-token', // Remplacez par l'ID de vos informations d'identification GitHub
+                    url: 'https://github.com/Olsen-GabCoder/projet_devOps_gestionemploye.git'
             }
         }
 
