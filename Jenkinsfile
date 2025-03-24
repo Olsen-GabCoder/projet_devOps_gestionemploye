@@ -16,12 +16,6 @@ pipeline {
             }
         }
 
-        stage('Build Frontend') {
-			steps {
-				bat 'cd frontend && npm install && npm run build --prod'
-            }
-        }
-
         stage('Build Backend') {
 			steps {
 				bat 'cd backend && mvn clean install'
