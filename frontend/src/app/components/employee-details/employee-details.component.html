@@ -1,0 +1,128 @@
+<div class="container" *ngIf="employee">
+  <h2>Détails de l'employé</h2>
+  <h3>{{employee.prenom}} {{employee.nom}}</h3>
+  <p>Poste: {{employee.poste}}</p>
+
+  <mat-spinner *ngIf="isLoading"></mat-spinner>
+
+  <mat-card class="periode-card" *ngIf="!isLoading" [@fadeInOut]>
+    <mat-card-header>
+      <mat-card-title>Période de calcul</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="periodeForm" (ngSubmit)="onPeriodeSubmit()">
+        <mat-form-field appearance="outline" matTooltip="Sélectionnez la date de début de la période">
+          <mat-label>Date de début</mat-label>
+          <input matInput [matDatepicker]="debutPicker" formControlName="debutPeriode">
+          <mat-datepicker-toggle matSuffix [for]="debutPicker"></mat-datepicker-toggle>
+          <mat-datepicker #debutPicker></mat-datepicker>
+          <mat-error *ngIf="periodeForm.get('debutPeriode')?.hasError('required')">
+            La date de début est obligatoire
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" matTooltip="Sélectionnez la date de fin de la période">
+          <mat-label>Date de fin</mat-label>
+          <input matInput [matDatepicker]="finPicker" formControlName="finPeriode">
+          <mat-datepicker-toggle matSuffix [for]="finPicker"></mat-datepicker-toggle>
+          <mat-datepicker #finPicker></mat-datepicker>
+          <mat-error *ngIf="periodeForm.get('finPeriode')?.hasError('required')">
+            La date de fin est obligatoire
+          </mat-error>
+        </mat-form-field>
+
+        <mat-error *ngIf="periodeForm.hasError('dateRangeInvalid')">
+          La date de début doit être antérieure à la date de fin
+        </mat-error>
+
+        <button mat-raised-button color="primary" type="submit" matTooltip="Calculer les heures supplémentaires pour la période sélectionnée">Calculer</button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="ajout-heures-card" *ngIf="!isLoading" [@fadeInOut]>
+    <mat-card-header>
+      <mat-card-title>Ajouter des heures supplémentaires</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="ajoutHeuresSupForm" (ngSubmit)="ajouterHeuresSup()">
+        <mat-form-field appearance="outline" matTooltip="Sélectionnez la date des heures supplémentaires">
+          <mat-label>Date</mat-label>
+          <input matInput [matDatepicker]="datePicker" formControlName="date">
+          <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
+          <mat-datepicker #datePicker></mat-datepicker>
+          <mat-error *ngIf="ajoutHeuresSupForm.get('date')?.hasError('required')">
+            La date est obligatoire
+          </mat-error>
+          <mat-error *ngIf="ajoutHeuresSupForm.get('date')?.hasError('dateDansLeFutur')">
+            La date ne peut pas être dans le futur
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" matTooltip="Entrez le nombre d'heures supplémentaires">
+          <mat-label>Nombre d'heures</mat-label>
+          <input matInput type="number" formControlName="nbHeures">
+          <mat-error *ngIf="ajoutHeuresSupForm.get('nbHeures')?.hasError('required')">
+            Le nombre d'heures est obligatoire
+          </mat-error>
+          <mat-error *ngIf="ajoutHeuresSupForm.get('nbHeures')?.hasError('min')">
+            Le nombre d'heures doit être supérieur à 0
+          </mat-error>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="submit" matTooltip="Ajouter les heures supplémentaires">Ajouter</button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="resultats-card" *ngIf="!isLoading" [@fadeInOut]>
+    <mat-card-header>
+      <mat-card-title>Résultats</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <table mat-table [dataSource]="dataSourceHeuresSup" class="mat-elevation-z8">
+
+        <!-- Date Column -->
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef> Date </th>
+          <td mat-cell *matCellDef="let element"> {{element.date | date: 'dd/MM/yyyy'}} </td>
+        </ng-container>
+
+        <!-- Nb Heures Column -->
+        <ng-container matColumnDef="nbHeures">
+          <th mat-header-cell *matHeaderCellDef> Nb Heures </th>
+          <td mat-cell *matCellDef="let element"> {{element.nbHeures}} </td>
+        </ng-container>
+
+        <!-- Tarif Column -->
+        <ng-container matColumnDef="tarif">
+          <th mat-header-cell *matHeaderCellDef> Tarif </th>
+          <td mat-cell *matCellDef="let element"> {{element.tarif}} €</td>
+        </ng-container>
+
+        <!-- Cout Column -->
+        <ng-container matColumnDef="cout">
+          <th mat-header-cell *matHeaderCellDef> Cout </th>
+          <td mat-cell *matCellDef="let element"> {{element.cout}} €</td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef> Actions </th>
+          <td mat-cell *matCellDef="let element">
+            <button mat-icon-button color="warn" (click)="supprimerHeuresSup(element)" matTooltip="Supprimer les heures supplémentaires">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" [@fadeInOut]></tr>
+      </table>
+      <p>Total heures supplémentaires: {{totalHeuresSup}}</p>
+      <p>Coût total: {{coutTotalHeuresSup}} €</p>
+    </mat-card-content>
+  </mat-card>
+
+  <button mat-raised-button color="accent" routerLink="/employees" *ngIf="!isLoading" matTooltip="Retour à la liste des employés">Retour à la liste</button>
+</div>
