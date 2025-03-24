@@ -12,13 +12,13 @@ pipeline {
 
         stage('Build Frontend') {
 			steps {
-				sh 'cd frontend && npm install && npm run build --prod'
+				bat 'cd frontend && npm install && npm run build --prod'  // Utilisez 'bat' au lieu de 'sh'
             }
         }
 
         stage('Build Backend') {
 			steps {
-				sh 'cd backend && mvn clean install'
+				bat 'cd backend && mvn clean install'  // Utilisez 'bat' au lieu de 'sh'
             }
         }
 
