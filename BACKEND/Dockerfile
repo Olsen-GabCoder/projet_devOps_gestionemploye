@@ -1,3 +1,12 @@
+FROM maven:3.9.4-eclipse-temurin-17 AS build
+
+WORKDIR /app
+
+# Copier tout le contenu du dossier BackEnd
+COPY . .
+# Construire le projet Maven sans les tests
+# RUN mvn clean install package
+RUN mvn clean package
 # Utiliser une image Java comme base
 FROM openjdk:17-alpine
 
