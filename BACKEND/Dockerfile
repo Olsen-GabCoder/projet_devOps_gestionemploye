@@ -6,7 +6,7 @@ WORKDIR /app
 COPY . .
 # Construire le projet Maven sans les tests
 # RUN mvn clean install package
-RUN mvn clean package
+RUN mvn clean install package
 # Utiliser une image Java comme base
 FROM openjdk:17-alpine
 

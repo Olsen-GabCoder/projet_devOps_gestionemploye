@@ -6,7 +6,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "80:80"
+      - "4200:80"
     depends_on:
       - backend
     restart: always
@@ -23,25 +23,23 @@ services:
       # Configuration de la base de données (à adapter)
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/employeesdb
       SPRING_DATASOURCE_USERNAME: olsen
-      SPRING_DATASOURCE_PASSWORD: "oZt(1z48bw[plR)G"
+      SPRING_DATASOURCE_PASSWORD: "oZt(1z48bw[plR)G" # Mot de passe directement dans le fichier
     depends_on:
       - db
     restart: always
     networks:
       - salam_network
 
-
   db:
     image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD: "oZt(1z48bw[plR)G"
+      MYSQL_ROOT_PASSWORD: "oZt(1z48bw[plR)G"  # Mot de passe root directement dans le fichier
       MYSQL_DATABASE: employeesdb
       MYSQL_USER: olsen
-      MYSQL_PASSWORD: "oZt(1z48bw[plR)G"
+      MYSQL_PASSWORD: "oZt(1z48bw[plR)G"  # Mot de passe directement dans le fichier
     volumes:
       - db_data:/var/lib/mysql
     restart: always
-
     networks:
       - salam_network
 
@@ -50,4 +48,3 @@ volumes:
 networks:
   salam_network:
     name: salam_network
-
