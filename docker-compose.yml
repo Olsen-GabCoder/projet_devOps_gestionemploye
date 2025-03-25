@@ -2,9 +2,8 @@ version: "3.8"
 
 services:
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: m1ra/projet_devops_gestionemploye-frontend:1.0
+    build: ./frontend
     ports:
       - "4200:80"
     depends_on:
@@ -14,9 +13,8 @@ services:
       - salam_network
 
   backend:
-    build:
-      context: ./BACKEND
-      dockerfile: Dockerfile
+    image: m1ra/projet_devops_gestionemploye-backend:1.0
+    build: ./BACKEND
     ports:
       - "8081:8081"
     environment:
