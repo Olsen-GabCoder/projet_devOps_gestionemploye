@@ -2,17 +2,18 @@ pipeline {
 	agent any
 
     tools {
-		maven 'Maven 3.9.9'  // Assurez-vous que le nom est correct
+		maven 'Maven 3.9.9'
+        cmd 'Cmd'  // Utilisez le nom que vous avez donné à votre outil Cmd
     }
     environment {
 		PATH = "\"C:\\Program Files\\Git\\bin;\${env.PATH}\""
-    }
+   }
 
     stages {
 		stage('Checkout') {
 			steps {
 				git branch: 'master',
-                    url: 'https://github.com/Olsen-GabCoder/projet_devOps_gestionemploye.git' // Suppression de credentialsId pour un dépôt public
+                    url: 'https://github.com/Olsen-GabCoder/projet_devOps_gestionemploye.git'
             }
         }
 
