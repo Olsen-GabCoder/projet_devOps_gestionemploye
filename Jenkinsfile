@@ -5,7 +5,8 @@ pipeline {
 		maven 'Maven 3.9.9'
     }
     environment {
-		PATH = "\"C:\\Program Files\\Git\\bin;\${env.PATH}\""
+		PATH = "C:\\Program Files\\Git\\bin;\${env.PATH}"
+        SHELL = "C:\\Program Files\\Git\\bin\\sh.exe"
     }
 
     stages {
@@ -18,14 +19,15 @@ pipeline {
 
         stage('Build Frontend') {
 			steps {
-				sh '"C:\\Program Files\\nodejs\\npm.cmd" install'
-                 sh '"C:\\Program Files\\nodejs\\npm.cmd" run build --prod'
+				// Ajout du shebang pour spécifier l'interpréteur de commandes
+                sh "#!C:\\Program Files\\Git\\bin\\sh.exe\n cd frontend && npm install && npm run build --prod"
             }
         }
 
         stage('Build Backend') {
 			steps {
-				bat 'cd backend && mvn clean install'
+				// Ajout du shebang pour spécifier l'interpréteur de commandes
+                sh "#!C:\\Program Files\\Git\\bin\\sh.exe\n cd backend && mvn clean install"
             }
         }
 
