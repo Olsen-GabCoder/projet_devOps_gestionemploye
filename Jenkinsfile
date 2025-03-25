@@ -1,26 +1,31 @@
 pipeline {
 	agent any
 
-   environment {
-		PATH = "C:\\Program Files\\Git\\bin;\${env.PATH}"
-   }
+    tools {
+		maven 'Maven 3.9.9'
+    }
+    environment {
+		PATH = "\"C:\\Program Files\\Git\\bin;\${env.PATH}\""
+    }
 
     stages {
 		stage('Checkout') {
 			steps {
-				git branch: 'master', url: 'https://github.com/Olsen-GabCoder/projet_devOps_gestionemploye.git'
+				git branch: 'master',
+                    url: 'https://github.com/Olsen-GabCoder/projet_devOps_gestionemploye.git'
             }
         }
 
         stage('Build Frontend') {
 			steps {
-				sh 'cd frontend && npm install && npm run build --prod'
+				sh '"C:\\Program Files\\nodejs\\npm.cmd" install'
+                 sh '"C:\\Program Files\\nodejs\\npm.cmd" run build --prod'
             }
         }
 
         stage('Build Backend') {
 			steps {
-				sh 'cd backend && mvn clean install'
+				bat 'cd backend && mvn clean install'
             }
         }
 
