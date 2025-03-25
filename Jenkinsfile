@@ -27,7 +27,7 @@ pipeline {
         stage('Build Backend') {
 			steps {
 				// Ajout du shebang pour spécifier l'interpréteur de commandes
-                sh "#!C:\\Program Files\\Git\\bin\\sh.exe\n cd backend && mvn clean install"
+                sh "#!C:\\Program Files\\Git\\bin\\sh.exe\n cd BACKEND && mvn clean install"
             }
         }
 
