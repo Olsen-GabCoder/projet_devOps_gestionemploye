@@ -41,7 +41,7 @@ pipeline {
             }
         }
 
-        /*stage('Build Frontend') {
+        stage('Build Frontend') {
 		steps {
 			script {
 				if (isUnix()) {
@@ -69,6 +69,6 @@ pipeline {
 		steps {
 			echo "Test stage: Not implemented yet"
             }
-        }*/
+        }
     }
 }

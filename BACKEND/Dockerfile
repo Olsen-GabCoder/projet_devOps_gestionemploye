@@ -14,7 +14,7 @@ FROM openjdk:17-alpine
 WORKDIR /app
 
 # Copier le fichier JAR
-COPY target/*.jar app.jar
+COPY .target/*.jar app.jar
 
 # Exposer le port 8081
 EXPOSE 8081
