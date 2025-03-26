@@ -15,11 +15,11 @@ pipeline {
         stage('Build Docker Images') {
 			steps {
 				script {
-					// Créer le répertoire cible si inexistant
+					// Créer le répertoire cible si inexistant et modifier les permissions
                     sshagent(['ssh-agent']) {
 						// Copier les fichiers vers la machine distante
                         sh '''
-                            ssh -o StrictHostKeyChecking=no $SERVER "mkdir -p /home/ubuntu/As-Salam"
+                            ssh -o StrictHostKeyChecking=no $SERVER "mkdir -p /home/ubuntu/As-Salam && sudo chown -R ubuntu:ubuntu /home/ubuntu/As-Salam"
                             scp -o StrictHostKeyChecking=no -r . $SERVER:/home/ubuntu/As-Salam
                         '''
                     }
