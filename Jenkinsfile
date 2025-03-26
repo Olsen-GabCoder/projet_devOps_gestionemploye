@@ -1,8 +1,5 @@
 pipeline {
 	agent any
-    environment {
-		SERVER = 'ubuntu@13.53.207.181'
-    }
 
     stages {
 		stage('Checkout') {
@@ -13,21 +10,41 @@ pipeline {
 
         stage('Build Backend') {
 			steps {
-				sh 'cd BACKEND && mvn clean package -DskipTests'
+				dir('BACKEND') {
+					sh 'mvn clean package -DskipTests'
+                }
             }
         }
 
-        stage('Deploy to Server') {
+        stage('Build Frontend') {
+			steps {
+				dir('frontend') {
+					sh 'npm install'
+                    sh 'npm run build --prod'
+                }
+            }
+        }
+
+        stage('Deploy') {
 			steps {
 				sshagent(['ssh-agent']) {
 					sh '''
-                        ssh -o StrictHostKeyChecking=no $SERVER "mkdir -p /home/ubuntu/As-Salam"
-                        scp -o StrictHostKeyChecking=no -r * $SERVER:/home/ubuntu/As-Salam
-                        ssh -o StrictHostKeyChecking=no $SERVER "cd /home/ubuntu/As-Salam && ls"
-                        ssh -o StrictHostKeyChecking=no $SERVER "cd /home/ubuntu/As-Salam && docker-compose up -d"
+                        scp -o StrictHostKeyChecking=no -r docker-compose.yml BACKEND/target/*.jar frontend/dist/* ubuntu@13.53.207.181:/home/ubuntu/As-Salam
+                        ssh -o StrictHostKeyChecking=no ubuntu@13.53.207.181 "
+                            cd /home/ubuntu/As-Salam
+                            docker-compose down
+                            docker-compose up -d --build
+                        "
                     '''
                 }
             }
+        }
+    }
+
+    post {
+		always {
+			sh 'docker system prune -f'
+            cleanWs()
         }
     }
 }
