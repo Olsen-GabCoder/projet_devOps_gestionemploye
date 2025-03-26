@@ -1,94 +1,74 @@
 pipeline {
-	agent any
+    agent any
+
+    /*tools {
+	maven 'Maven 3.9.9'
+    }
 
     environment {
-		FRONTEND_DIR = './frontend'
-        BACKEND_DIR = './backend'
-        DOCKER_COMPOSE_PATH = './docker-compose.yml'
+	PATH = "C:\\Program Files\\Git\\bin;${env.PATH}"
+    }*/
+
+    environment {
+		SERVER = 'ubuntu@13.53.207.181'  // Définir la variable ici
     }
 
-    stages {
-		stage('Checkout Code') {
+     stages {
+	    stage('Checkout') {
+		    steps {
+				 git branch: 'master', url: 'https://github.com/Olsen-GabCoder/projet_devOps_gestionemploye.git'
+            }
+        }
+
+        stage('build'){
 			steps {
-				script {
-					// Cloner le code source depuis le dépôt Git
-                    checkout scm
+				sshagent(['ssh-key']) {
+					sh '''
+                      # Créer le répertoire cible si inexistant
+                        ssh -o StrictHostKeyChecking=no $SERVER "mkdir -p /home/ubuntu/As-Salam"
+
+                        # Copier les fichiers vers la machine distante
+                        scp -o StrictHostKeyChecking=no -r * $SERVER:/home/ubuntu/As-Salam
+
+                        # Se déplacer dans le répertoire As-Salam sur la machine distante et lister les fichiers
+                        ssh -o StrictHostKeyChecking=no $SERVER "cd /home/ubuntu/As-Salam && ls"
+
+                        # Créer et démarrer les conteneurs dans le répertoire /home/ubuntu/As-Salam
+                        ssh -o StrictHostKeyChecking=no $SERVER "cd /home/ubuntu/As-Salam && docker-compose up -d"
+
+                  '''
                 }
             }
         }
 
-        stage('Build Backend (Maven)') {
-			steps {
-				script {
-					// Construire l'application backend avec Maven
-                    dir(BACKEND_DIR) {
-						sh 'mvn clean install package'
+        /*stage('Build Frontend') {
+		steps {
+			script {
+				if (isUnix()) {
+					sh 'cd frontend && npm install && npm run build --prod'
+                    } else {
+					bat 'cd frontend && npm install && npm run build --prod'
                     }
                 }
             }
         }
 
-        stage('Build Frontend (Angular)') {
-			steps {
-				script {
-					// Construire l'application frontend avec Angular
-                    dir(FRONTEND_DIR) {
-						sh 'npm install'
-                        sh 'npm run build --prod'
+        stage('Build Backend') {
+		steps {
+			script {
+				if (isUnix()) {
+					sh 'cd BACKEND && mvn clean install'
+                    } else {
+					bat 'cd BACKEND && mvn clean install'
                     }
                 }
             }
         }
 
-        stage('Build Docker Images') {
-			steps {
-				script {
-					// Construire les images Docker pour le frontend et le backend
-                    sh 'docker-compose -f ${DOCKER_COMPOSE_PATH} build'
-                }
+        stage('Test') {
+		steps {
+			echo "Test stage: Not implemented yet"
             }
-        }
-
-        stage('Run Docker Compose Up') {
-			steps {
-				script {
-					// Démarrer les services Docker via docker-compose
-                    sh 'docker-compose -f ${DOCKER_COMPOSE_PATH} up -d'
-                }
-            }
-        }
-
-        stage('Run Tests (Optional)') {
-			steps {
-				script {
-					// Optionnel : Ajouter ici les tests unitaires ou d'intégration
-                    echo 'Running tests...'
-                }
-            }
-        }
-
-        stage('Clean Up') {
-			steps {
-				script {
-					// Nettoyer les images Docker non utilisées après le déploiement
-                    sh 'docker system prune -f'
-                }
-            }
-        }
-    }
-
-    post {
-		success {
-			echo 'Pipeline finished successfully.'
-        }
-
-        failure {
-			echo 'Pipeline failed. Please check the logs for errors.'
-        }
-
-        always {
-			// Effectuer un nettoyage général si nécessaire, en particulier sur les conteneurs
-            sh 'docker-compose down'
-        }
+        }*/
     }
 }
