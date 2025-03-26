@@ -1,13 +1,13 @@
 pipeline {
     agent any
 
-    tools {
+    /*tools {
 	maven 'Maven 3.9.9'
     }
 
     environment {
 	PATH = "C:\\Program Files\\Git\\bin;${env.PATH}"
-    }
+    }*/
 
     stages {
 	stage('Checkout') {
