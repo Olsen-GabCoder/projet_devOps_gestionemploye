@@ -2,15 +2,15 @@ pipeline {
 	agent any
 
     tools {
-		maven 'Maven 3.9.9'  // Assurez-vous que la version est bien installée dans Jenkins
+		maven 'Maven 3.9.9'
     }
 
     environment {
-		PATH = "C:\\Program Files\\Git\\bin;${env.PATH}"
+		PATH = "C:\\Program Files\\Git\\bin;${env.PATH};C:\\Program Files\\Docker\\Docker\\resources\\bin"
         REGISTRY = 'm1ra'
-        FRONTEND_IMAGE = 'projet_devops_gestionemploye-frontend'
-        BACKEND_IMAGE = 'projet_devops_gestionemploye-backend'
-        VERSION = '1.1'  // On incrémente la version
+        FRONTEND_IMAGE = 'projet_devops_gestionemploye_frontend'  
+        BACKEND_IMAGE = 'projet_devops_gestionemploye_backend'
+        VERSION = '1.1'
     }
 
     stages {
@@ -45,14 +45,30 @@ pipeline {
         }
 
         stage('Build & Push Docker Images') {
-			steps {
+			environment {
+				DOCKER_CONFIG = credentials('docker-hub-creds')
+            }
+            steps {
 				script {
-					// Assurez-vous que la commande Docker utilise le bon contexte
-                    sh "docker build -t $REGISTRY/$BACKEND_IMAGE:$VERSION ./BACKEND"
-                    sh "docker push $REGISTRY/$BACKEND_IMAGE:$VERSION"
+					if (isUnix()) {
+						sh """
+                            docker build -t $REGISTRY/$BACKEND_IMAGE:$VERSION ./BACKEND
+                            docker login -u $DOCKER_CONFIG_USR -p $DOCKER_CONFIG_PSW
+                            docker push $REGISTRY/$BACKEND_IMAGE:$VERSION
 
-                    sh "docker build -t $REGISTRY/$FRONTEND_IMAGE:$VERSION ./frontend"
-                    sh "docker push $REGISTRY/$FRONTEND_IMAGE:$VERSION"
+                            docker build -t $REGISTRY/$FRONTEND_IMAGE:$VERSION ./frontend
+                            docker push $REGISTRY/$FRONTEND_IMAGE:$VERSION
+                        """
+                    } else {
+						bat """
+                            docker build -t %REGISTRY%/%BACKEND_IMAGE%:%VERSION% ./BACKEND
+                            docker login -u %DOCKER_CONFIG_USR% -p %DOCKER_CONFIG_PSW%
+                            docker push %REGISTRY%/%BACKEND_IMAGE%:%VERSION%
+
+                            docker build -t %REGISTRY%/%FRONTEND_IMAGE%:%VERSION% ./frontend
+                            docker push %REGISTRY%/%FRONTEND_IMAGE%:%VERSION%
+                        """
+                    }
                 }
             }
         }
@@ -60,10 +76,13 @@ pipeline {
         stage('Deploy') {
 			steps {
 				script {
-					// Déployer avec docker-compose
-                    sh 'docker-compose down'
-                    sh 'docker-compose pull'
-                    sh 'docker-compose up -d'
+					if (isUnix()) {
+						sh 'docker-compose -f docker-compose.prod.yml down --remove-orphans'
+                        sh 'docker-compose -f docker-compose.prod.yml up -d'
+                    } else {
+						bat 'docker-compose -f docker-compose.prod.yml down --remove-orphans'
+                        bat 'docker-compose -f docker-compose.prod.yml up -d'
+                    }
                 }
             }
         }
