@@ -2,74 +2,93 @@ pipeline {
 	agent any
 
     environment {
-		SERVER = 'ubuntu@13.53.207.181'  // Définir la variable ici
+		FRONTEND_DIR = './frontend'
+        BACKEND_DIR = './backend'
+        DOCKER_COMPOSE_PATH = './docker-compose.yml'
     }
 
     stages {
-		stage('Checkout') {
+		stage('Checkout Code') {
 			steps {
-				git branch: 'master', url: 'https://github.com/Olsen-GabCoder/projet_devOps_gestionemploye.git'
+				script {
+					// Cloner le code source depuis le dépôt Git
+                    checkout scm
+                }
+            }
+        }
+
+        stage('Build Backend (Maven)') {
+			steps {
+				script {
+					// Construire l'application backend avec Maven
+                    dir(BACKEND_DIR) {
+						sh 'mvn clean install package'
+                    }
+                }
+            }
+        }
+
+        stage('Build Frontend (Angular)') {
+			steps {
+				script {
+					// Construire l'application frontend avec Angular
+                    dir(FRONTEND_DIR) {
+						sh 'npm install'
+                        sh 'npm run build --prod'
+                    }
+                }
             }
         }
 
         stage('Build Docker Images') {
 			steps {
 				script {
-					// Créer le répertoire cible si inexistant et modifier les permissions
-                    sshagent(['ssh-agent']) {
-						// Copier les fichiers vers la machine distante
-                        sh '''
-                            ssh -o StrictHostKeyChecking=no $SERVER "mkdir -p /home/ubuntu/As-Salam && sudo chown -R ubuntu:ubuntu /home/ubuntu/As-Salam"
-                            scp -o StrictHostKeyChecking=no -r . $SERVER:/home/ubuntu/As-Salam
-                        '''
-                    }
+					// Construire les images Docker pour le frontend et le backend
+                    sh 'docker-compose -f ${DOCKER_COMPOSE_PATH} build'
                 }
             }
         }
 
-        stage('Build and Run Containers') {
+        stage('Run Docker Compose Up') {
 			steps {
 				script {
-					// Construire et démarrer les conteneurs via docker-compose
-                    sshagent(['ssh-agent']) {
-						sh '''
-                            ssh -o StrictHostKeyChecking=no $SERVER "cd /home/ubuntu/As-Salam && docker-compose down"
-                            ssh -o StrictHostKeyChecking=no $SERVER "cd /home/ubuntu/As-Salam && docker-compose build"
-                            ssh -o StrictHostKeyChecking=no $SERVER "cd /home/ubuntu/As-Salam && docker-compose up -d"
-                        '''
-                    }
+					// Démarrer les services Docker via docker-compose
+                    sh 'docker-compose -f ${DOCKER_COMPOSE_PATH} up -d'
                 }
             }
         }
 
-        stage('Build Frontend') {
+        stage('Run Tests (Optional)') {
 			steps {
 				script {
-					if (isUnix()) {
-						sh 'cd frontend && npm install && npm run build --prod'
-                    } else {
-						bat 'cd frontend && npm install && npm run build --prod'
-                    }
+					// Optionnel : Ajouter ici les tests unitaires ou d'intégration
+                    echo 'Running tests...'
                 }
             }
         }
 
-        stage('Build Backend') {
+        stage('Clean Up') {
 			steps {
 				script {
-					if (isUnix()) {
-						sh 'cd BACKEND && mvn clean install'
-                    } else {
-						bat 'cd BACKEND && mvn clean install'
-                    }
+					// Nettoyer les images Docker non utilisées après le déploiement
+                    sh 'docker system prune -f'
                 }
             }
         }
+    }
 
-        stage('Test') {
-			steps {
-				echo "Test stage: Not implemented yet"
-            }
+    post {
+		success {
+			echo 'Pipeline finished successfully.'
+        }
+
+        failure {
+			echo 'Pipeline failed. Please check the logs for errors.'
+        }
+
+        always {
+			// Effectuer un nettoyage général si nécessaire, en particulier sur les conteneurs
+            sh 'docker-compose down'
         }
     }
 }
