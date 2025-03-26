@@ -2,7 +2,7 @@ pipeline {
 	agent any
 
     tools {
-		maven 'Maven 3.9.9'
+		maven 'Maven 3.9.9'  // Assurez-vous que la version est bien installée dans Jenkins
     }
 
     environment {
@@ -47,7 +47,8 @@ pipeline {
         stage('Build & Push Docker Images') {
 			steps {
 				script {
-					sh "docker build -t $REGISTRY/$BACKEND_IMAGE:$VERSION ./BACKEND"
+					// Assurez-vous que la commande Docker utilise le bon contexte
+                    sh "docker build -t $REGISTRY/$BACKEND_IMAGE:$VERSION ./BACKEND"
                     sh "docker push $REGISTRY/$BACKEND_IMAGE:$VERSION"
 
                     sh "docker build -t $REGISTRY/$FRONTEND_IMAGE:$VERSION ./frontend"
@@ -59,7 +60,8 @@ pipeline {
         stage('Deploy') {
 			steps {
 				script {
-					sh 'docker-compose down'
+					// Déployer avec docker-compose
+                    sh 'docker-compose down'
                     sh 'docker-compose pull'
                     sh 'docker-compose up -d'
                 }
