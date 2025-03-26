@@ -1,74 +1,69 @@
 pipeline {
-    agent any
+	agent any
 
-    /*tools {
-	maven 'Maven 3.9.9'
+    tools {
+		maven 'Maven 3.9.9'
     }
 
     environment {
-	PATH = "C:\\Program Files\\Git\\bin;${env.PATH}"
-    }*/
-
-    environment {
-		SERVER = 'ubuntu@13.53.207.181'  // Définir la variable ici
+		PATH = "C:\\Program Files\\Git\\bin;${env.PATH}"
+        REGISTRY = 'ubuntu@13.48.133.88'
+        FRONTEND_IMAGE = 'projet_devops_gestionemploye-frontend'
+        BACKEND_IMAGE = 'projet_devops_gestionemploye-backend'
+        VERSION = '1.1'  // On incrémente la version
     }
 
-     stages {
-	    stage('Checkout') {
-		    steps {
-				 git branch: 'master', url: 'https://github.com/Olsen-GabCoder/projet_devOps_gestionemploye.git'
-            }
-        }
-
-        stage('build'){
+    stages {
+		stage('Checkout') {
 			steps {
-				sshagent(['ssh-key']) {
-					sh '''
-                      # Créer le répertoire cible si inexistant
-                        ssh -o StrictHostKeyChecking=no $SERVER "mkdir -p /home/ubuntu/As-Salam"
-
-                        # Copier les fichiers vers la machine distante
-                        scp -o StrictHostKeyChecking=no -r * $SERVER:/home/ubuntu/As-Salam
-
-                        # Se déplacer dans le répertoire As-Salam sur la machine distante et lister les fichiers
-                        ssh -o StrictHostKeyChecking=no $SERVER "cd /home/ubuntu/As-Salam && ls"
-
-                        # Créer et démarrer les conteneurs dans le répertoire /home/ubuntu/As-Salam
-                        ssh -o StrictHostKeyChecking=no $SERVER "cd /home/ubuntu/As-Salam && docker-compose up -d"
-
-                  '''
-                }
+				git branch: 'master', url: 'https://github.com/Olsen-GabCoder/projet_devOps_gestionemploye.git'
             }
         }
 
-        /*stage('Build Frontend') {
-		steps {
-			script {
-				if (isUnix()) {
-					sh 'cd frontend && npm install && npm run build --prod'
+        stage('Build Frontend') {
+			steps {
+				script {
+					if (isUnix()) {
+						sh 'cd frontend && npm install && npm run build --prod'
                     } else {
-					bat 'cd frontend && npm install && npm run build --prod'
+						bat 'cd frontend && npm install && npm run build --prod'
                     }
                 }
             }
         }
 
         stage('Build Backend') {
-		steps {
-			script {
-				if (isUnix()) {
-					sh 'cd BACKEND && mvn clean install'
+			steps {
+				script {
+					if (isUnix()) {
+						sh 'cd BACKEND && mvn clean install package'
                     } else {
-					bat 'cd BACKEND && mvn clean install'
+						bat 'cd BACKEND && mvn clean install package'
                     }
                 }
             }
         }
 
-        stage('Test') {
-		steps {
-			echo "Test stage: Not implemented yet"
+        stage('Build & Push Docker Images') {
+			steps {
+				script {
+					sh "docker build -t $REGISTRY/$BACKEND_IMAGE:$VERSION ./BACKEND"
+                    sh "docker push $REGISTRY/$BACKEND_IMAGE:$VERSION"
+
+                    sh "docker build -t $REGISTRY/$FRONTEND_IMAGE:$VERSION ./frontend"
+                    sh "docker push $REGISTRY/$FRONTEND_IMAGE:$VERSION"
+                }
             }
-        }*/
+        }
+
+        stage('Deploy') {
+			steps {
+				script {
+					sh 'docker-compose down'
+                    sh 'docker-compose pull'
+                    sh 'docker-compose up -d'
+                }
+            }
+        }
     }
 }
