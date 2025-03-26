@@ -5,7 +5,7 @@ services:
     image: m1ra/projet_devops_gestionemploye-frontend:1.1
     build: ./frontend
     ports:
-      - "4400:80"
+      - "4200:80"
     depends_on:
       - backend
     restart: always
@@ -16,7 +16,7 @@ services:
     image: m1ra/projet_devops_gestionemploye-backend:1.1
     build: ./BACKEND
     ports:
-      - "8082:8082"
+      - "8080:8081"
     environment:
       # Configuration de la base de données (à adapter)
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/employeesdb
