@@ -10,7 +10,7 @@ pipeline {
     }*/
 
     environment {
-		SERVER = 'ubuntu@13.53.207.181'  // Définir la variable ici
+		SERVER = 'ubuntu@13.53.207.181'  ///Définir la variable ici
     }
 
      stages {
