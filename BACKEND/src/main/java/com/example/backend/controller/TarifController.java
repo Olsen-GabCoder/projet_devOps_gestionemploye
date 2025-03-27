@@ -11,13 +11,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/tarifs")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "http://16.16.166.194:4200")
 public class TarifController {
 
     @Autowired
     private TarifService tarifService;
 
-    @CrossOrigin(origins = "http://localhost:4200")
+    @CrossOrigin(origins = "http://16.16.166.194:4200")
     @GetMapping
     public List<Tarif> getAllTarifs() {
         System.out.println("Récupération de tous les tarifs.");
@@ -26,7 +26,7 @@ public class TarifController {
         return tarifs;
     }
 
-    @CrossOrigin(origins = "http://localhost:4200")
+    @CrossOrigin(origins = "http://16.16.166.194:4200")
     @GetMapping("/{id}")
     public ResponseEntity<Tarif> getTarifById(@PathVariable Long id) {
         System.out.println("Récupération du tarif avec l'ID : " + id);
@@ -40,7 +40,7 @@ public class TarifController {
         }
     }
 
-    @CrossOrigin(origins = "http://localhost:4200")
+    @CrossOrigin(origins = "http://16.16.166.194:4200")
     @GetMapping("/type/{typeJour}") // Utilisation de @PathVariable
     public ResponseEntity<List<Tarif>> getTarifByTypeJour(@PathVariable String typeJour) {
         System.out.println("Récupération du tarif pour le type de jour : " + typeJour); // Ajout du log
@@ -57,14 +57,14 @@ public class TarifController {
     }
 
 
-    @CrossOrigin(origins = "http://localhost:4200")
+    @CrossOrigin(origins = "http://16.16.166.194:4200")
     @PostMapping
     public Tarif createTarif(@RequestBody Tarif tarif) {
         System.out.println("Création d'un nouveau tarif : " + tarif);
         return tarifService.createTarif(tarif);
     }
 
-    @CrossOrigin(origins = "http://localhost:4200")
+    @CrossOrigin(origins = "http://16.16.166.194:4200")
     @PutMapping("/{id}")
     public ResponseEntity<Tarif> updateTarif(@PathVariable Long id, @RequestBody Tarif tarif) {
         System.out.println("Mise à jour du tarif avec l'ID : " + id + ", nouvelles données : " + tarif);
@@ -78,7 +78,7 @@ public class TarifController {
         }
     }
 
-    @CrossOrigin(origins = "http://localhost:4200")
+    @CrossOrigin(origins = "http://16.16.166.194:4200")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTarif(@PathVariable Long id) {
         System.out.println("Suppression du tarif avec l'ID : " + id);

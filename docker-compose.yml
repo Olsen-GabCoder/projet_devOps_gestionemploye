@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   frontend:
-    image: m1ra/projet_devops_gestionemploye-frontend:1.1
+    image: m1ra/projet_devops_gestionemploye-frontend:1.4
     build: ./frontend
     ports:
       - "4200:80"
@@ -13,7 +13,7 @@ services:
       - salam_network
 
   backend:
-    image: m1ra/projet_devops_gestionemploye-backend:1.1
+    image: m1ra/projet_devops_gestionemploye-backend:1.4
     build: ./BACKEND
     ports:
       - "8081:8081"

@@ -9,7 +9,7 @@ import { catchError, map } from 'rxjs/operators';
 })
 export class TarifService {
 
-  private baseUrl = 'http://localhost:8081/api/tarifs'; // URL de l'API Spring Boot
+  private baseUrl = 'http://16.16.166.194:8081/api/tarifs'; // URL de l'API Spring Boot
 
   constructor(private http: HttpClient) { }
 

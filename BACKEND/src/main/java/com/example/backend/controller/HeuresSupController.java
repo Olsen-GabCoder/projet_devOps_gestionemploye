@@ -11,19 +11,19 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/heures-sup")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "http://16.16.166.194:4200")
 public class HeuresSupController {
 
     @Autowired
     private HeuresSupService heuresSupService;
 
-    @CrossOrigin(origins = "http://localhost:4200")
+    @CrossOrigin(origins = "http://16.16.166.194:4200")
     @GetMapping
     public List<HeuresSup> getAllHeuresSup() {
         return heuresSupService.getAllHeuresSup();
     }
 
-    @CrossOrigin(origins = "http://localhost:4200")
+    @CrossOrigin(origins = "http://16.16.166.194:4200")
     @GetMapping("/{id}")
     public ResponseEntity<HeuresSup> getHeuresSupById(@PathVariable Long id) {
         HeuresSup heuresSup = heuresSupService.getHeuresSupById(id);
@@ -34,20 +34,20 @@ public class HeuresSupController {
         }
     }
 
-    @CrossOrigin(origins = "http://localhost:4200")
+    @CrossOrigin(origins = "http://16.16.166.194:4200")
     @GetMapping("/byEmployeeId") // Modification de l'URL
     public ResponseEntity<List<HeuresSup>> getHeuresSupByEmployeId(@RequestParam Long employeId) {
         List<HeuresSup> heuresSup = heuresSupService.getHeuresSupByEmployeId(employeId);
         return new ResponseEntity<>(heuresSup, HttpStatus.OK);
     }
 
-    @CrossOrigin(origins = "http://localhost:4200")
+    @CrossOrigin(origins = "http://16.16.166.194:4200")
     @PostMapping
     public HeuresSup createHeuresSup(@RequestBody HeuresSup heuresSup) {
         return heuresSupService.createHeuresSup(heuresSup);
     }
 
-    @CrossOrigin(origins = "http://localhost:4200")
+    @CrossOrigin(origins = "http://16.16.166.194:4200")
     @PutMapping("/{id}")
     public ResponseEntity<HeuresSup> updateHeuresSup(@PathVariable Long id, @RequestBody HeuresSup heuresSup) {
         HeuresSup updatedHeuresSup = heuresSupService.updateHeuresSup(id, heuresSup);
@@ -58,7 +58,7 @@ public class HeuresSupController {
         }
     }
 
-    @CrossOrigin(origins = "http://localhost:4200")
+    @CrossOrigin(origins = "http://16.16.166.194:4200")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteHeuresSup(@PathVariable Long id) {
         boolean deleted = heuresSupService.deleteHeuresSup(id);

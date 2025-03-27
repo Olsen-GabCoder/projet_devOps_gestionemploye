@@ -8,7 +8,7 @@ import { HeuresSup } from '../../models/heures-sup.model';
 })
 export class HeuresSupService {
 
-  private baseUrl = 'http://localhost:8081/api/heures-sup'; // URL de l'API Spring Boot
+  private baseUrl = 'http://16.16.166.194:8081/api/heures-sup'; // URL de l'API Spring Boot
 
   constructor(private http: HttpClient) { }
 
