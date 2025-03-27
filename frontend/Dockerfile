@@ -1,35 +1,35 @@
-# Étape 1 : Construire le projet Angular
-FROM node:18 AS build
+# Utiliser une image Node.js comme base pour la construction
+FROM node:18-alpine AS builder
 
+# Définir le répertoire de travail
 WORKDIR /app
 
-# Copier les fichiers package.json et package-lock.json pour installer les dépendances
+# Copier les fichiers package.json et package-lock.json
 COPY package*.json ./
 
-# Nettoyer le cache avant d'installer les packages
-RUN npm cache clean --force
-
-# Installer les dépendances du projet y compris angular CLI
+# Installer les dépendances
 RUN npm install
 
-# Copier tout le contenu du dossier FrontEnd
+# Copier les fichiers source de l'application
 COPY . .
 
-# Construire l'application Angular pour la production
-RUN npm run build --configuration=production
+# Compiler l'application Angular en mode production
+RUN npm run build --prod
 
-# Étape 2 : Utiliser une image Nginx pour servir les fichiers Angular
-FROM nginx:latest
+# Utiliser une image Nginx pour servir l'application
+FROM nginx:alpine
 
-COPY nginx.conf /etc/nginx/nginx.conf
+# Supprimer la configuration Nginx par défaut
+RUN rm -rf /etc/nginx/conf.d/default.conf
 
-RUN rm -rf /usr/share/nginx/html/*
+# Copier la configuration Nginx personnalisée (si vous en avez une)
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copier les fichiers construits depuis l'étape précédente
-COPY --from=build /app/dist/frontend /usr/share/nginx/html
+# Copier les fichiers compilés depuis l'étape de construction
+COPY --from=builder /app/dist/frontend /usr/share/nginx/html
 
-# Exposer le port par défaut de Nginx
+# Exposer le port 80
 EXPOSE 80
 
-# Lancer Nginx
+
 CMD ["nginx", "-g", "daemon off;"]
