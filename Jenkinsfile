@@ -1,83 +1,74 @@
 pipeline {
 	agent any
 
-    tools {
-		maven 'Maven 3.9.9'
-        nodejs 'NodeJS'  
+    /*tools {
+	maven 'Maven 3.9.9'
     }
 
     environment {
-		SERVER = 'ubuntu@13.53.207.181'  // Votre serveur AWS
-        SSH_KEY_PATH = '/home/ubuntu/.ssh/id_rsa'  // Chemin de votre clé SSH privée
-        FRONTEND_IMAGE = 'projet_devops_gestionemploye_frontend'
-        BACKEND_IMAGE = 'projet_devops_gestionemploye_backend'
-        VERSION = '1.1'
+	PATH = "C:\\Program Files\\Git\\bin;${env.PATH}"
+    }*/
+
+    environment {
+		SERVER = 'ubuntu@13.53.207.181'  // Définir la variable ici
     }
 
-    stages {
+     stages {
 		stage('Checkout') {
 			steps {
 				git branch: 'master', url: 'https://github.com/Olsen-GabCoder/projet_devOps_gestionemploye.git'
             }
         }
 
-        stage('Build Frontend') {
+        stage('build'){
 			steps {
-				script {
-					if (isUnix()) {
-						sh 'cd frontend && npm install && npm run build --prod'
+				sshagent(['ssh-agent']) {
+					sh '''
+                      # Créer le répertoire cible si inexistant
+                        ssh -o StrictHostKeyChecking=no $SERVER "mkdir -p /home/ubuntu/As-Salam"
+
+                        # Copier les fichiers vers la machine distante
+                        scp -o StrictHostKeyChecking=no -r * $SERVER:/home/ubuntu/As-Salam
+
+                        # Se déplacer dans le répertoire As-Salam sur la machine distante et lister les fichiers
+                        ssh -o StrictHostKeyChecking=no $SERVER "cd /home/ubuntu/As-Salam && ls"
+
+                        # Créer et démarrer les conteneurs dans le répertoire /home/ubuntu/As-Salam
+                        ssh -o StrictHostKeyChecking=no $SERVER "cd /home/ubuntu/As-Salam && docker-compose up -d"
+
+                  '''
+                }
+            }
+        }
+
+        /*stage('Build Frontend') {
+		steps {
+			script {
+				if (isUnix()) {
+					sh 'cd frontend && npm install && npm run build --prod'
                     } else {
-						bat 'cd frontend && npm install && npm run build --prod'
+					bat 'cd frontend && npm install && npm run build --prod'
                     }
                 }
             }
         }
 
         stage('Build Backend') {
-			steps {
-				script {
-					if (isUnix()) {
-						sh 'cd BACKEND && mvn clean install package'
+		steps {
+			script {
+				if (isUnix()) {
+					sh 'cd BACKEND && mvn clean install'
                     } else {
-						bat 'cd BACKEND && mvn clean install package'
+					bat 'cd BACKEND && mvn clean install'
                     }
                 }
             }
         }
 
-        stage('Build Docker Images') {
-			steps {
-				script {
-					if (isUnix()) {
-						sh """
-                            docker build -t ${BACKEND_IMAGE}:${VERSION} ./BACKEND
-                            docker build -t ${FRONTEND_IMAGE}:${VERSION} ./frontend
-                        """
-                    } else {
-						bat """
-                            docker build -t %BACKEND_IMAGE%:%VERSION% ./BACKEND
-                            docker build -t %FRONTEND_IMAGE%:%VERSION% ./frontend
-                        """
-                    }
-                }
+        stage('Test') {
+		steps {
+			echo "Test stage: Not implemented yet"
             }
-        }
-
-        stage('Deploy to AWS') {
-			steps {
-				script {
-					// Copier le fichier docker-compose.yml sur le serveur distant AWS
-                    sh """
-                        scp -i ${SSH_KEY_PATH} ./docker-compose.yml ${SERVER}:/home/ubuntu/projet_devOps/
-                    """
-
-                    // Exécuter les commandes Docker Compose sur le serveur AWS via SSH
-                    sh """
-                        ssh -i ${SSH_KEY_PATH} ${SERVER} 'docker-compose -f /home/ubuntu/projet_devOps/docker-compose.yml down --remove-orphans'
-                        ssh -i ${SSH_KEY_PATH} ${SERVER} 'docker-compose -f /home/ubuntu/projet_devOps/docker-compose.yml up -d'
-                    """
-                }
-            }
-        }
+        }*/
     }
 }
