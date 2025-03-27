@@ -10,7 +10,7 @@ COPY package*.json ./
 RUN npm cache clean --force
 
 # Installer les dépendances du projet y compris angular CLI
-RUN npm install && npm install -g @angular/cli@17
+RUN npm install
 
 # Copier tout le contenu du dossier FrontEnd
 COPY . .
