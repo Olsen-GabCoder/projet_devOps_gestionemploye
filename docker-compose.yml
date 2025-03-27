@@ -37,6 +37,8 @@ services:
       MYSQL_PASSWORD: "oZt(1z48bw[plR)G"  # Mot de passe directement dans le fichier
     volumes:
       - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
     restart: always
     networks:
       - salam_network
