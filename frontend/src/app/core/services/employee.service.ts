@@ -8,7 +8,7 @@ import { Employee } from '../../models/employee.model';
 })
 export class EmployeeService {
 
-  private baseUrl = 'http://16.16.166.194:8081/api/employees'; // URL de l'API Spring Boot
+  private baseUrl = 'http://localhost:8081/api/employees'; // URL de l'API Spring Boot
 
   constructor(private http: HttpClient) { }
 

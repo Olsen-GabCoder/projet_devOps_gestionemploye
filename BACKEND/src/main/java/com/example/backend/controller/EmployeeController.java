@@ -16,13 +16,13 @@ public class EmployeeController {
     @Autowired
     private EmployeeService employeeService;
 
-    @CrossOrigin(origins = "http://16.16.166.194:4200")
+    @CrossOrigin(origins = "http://localhost:4200")
     @GetMapping
     public List<Employee> getAllEmployees() {
         return employeeService.getAllEmployees();
     }
 
-    @CrossOrigin(origins = "http://16.16.166.194:4200")
+    @CrossOrigin(origins = "http://localhost:4200")
     @GetMapping("/{id}")
     public ResponseEntity<Employee> getEmployeeById(@PathVariable Long id) {
         Employee employee = employeeService.getEmployeeById(id);
@@ -33,13 +33,13 @@ public class EmployeeController {
         }
     }
 
-    @CrossOrigin(origins = "http://16.16.166.194:4200")
+    @CrossOrigin(origins = "http://localhost:4200")
     @PostMapping
     public Employee createEmployee(@RequestBody Employee employee) {
         return employeeService.createEmployee(employee);
     }
 
-    @CrossOrigin(origins = "http://16.16.166.194:4200")
+    @CrossOrigin(origins = "http://localhost:4200")
     @PutMapping("/{id}")
     public ResponseEntity<Employee> updateEmployee(@PathVariable Long id, @RequestBody Employee employee) {
         Employee updatedEmployee = employeeService.updateEmployee(id, employee);
@@ -50,7 +50,7 @@ public class EmployeeController {
         }
     }
 
-    @CrossOrigin(origins = "http://16.16.166.194:4200")
+    @CrossOrigin(origins = "http://localhost:4200")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
         boolean deleted = employeeService.deleteEmployee(id);

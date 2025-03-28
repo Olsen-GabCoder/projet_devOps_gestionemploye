@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   frontend:
-    image: m1ra/projet_devops_gestionemploye-frontend:1.4
+    image: m1ra/projet_devops_gestionemploye-frontend:1.0
     build: ./frontend
     ports:
       - "4200:80"
@@ -13,7 +13,7 @@ services:
       - salam_network
 
   backend:
-    image: m1ra/projet_devops_gestionemploye-backend:1.4
+    image: m1ra/projet_devops_gestionemploye-backend:1.0
     build: ./BACKEND
     ports:
       - "8081:8081"
@@ -31,10 +31,10 @@ services:
   db:
     image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD: "oZt(1z48bw[plR)G"  # Mot de passe root directement dans le fichier
+      MYSQL_ROOT_PASSWORD: oZt(1z48bw[plR)G  # Mot de passe root directement dans le fichier
       MYSQL_DATABASE: employeesdb
       MYSQL_USER: olsen
-      MYSQL_PASSWORD: "oZt(1z48bw[plR)G"  # Mot de passe directement dans le fichier
+      MYSQL_PASSWORD: oZt(1z48bw[plR)G  # Mot de passe directement dans le fichier
     volumes:
       - db_data:/var/lib/mysql
     ports:
