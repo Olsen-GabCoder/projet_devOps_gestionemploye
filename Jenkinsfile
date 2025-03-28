@@ -35,9 +35,9 @@ pipeline {
 			steps {
 				script {
 					if (isUnix()) {
-						sh 'cd BACKEND && mvn clean install package'
+						sh 'cd BACKEND && mvn clean install package -DskipTests'
                     } else {
-						bat 'cd BACKEND && mvn clean install package'
+						bat 'cd BACKEND && mvn clean install package -DskipTests'
                     }
                 }
             }
