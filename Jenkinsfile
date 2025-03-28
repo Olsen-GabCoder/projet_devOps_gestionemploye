@@ -9,7 +9,7 @@ pipeline {
 		PATH = "C:\\Program Files\\Git\\bin;${env.PATH};C:\\Program Files\\Docker\\Docker\\resources\\bin"
         FRONTEND_IMAGE = 'projet_devops_gestionemploye_frontend'
         BACKEND_IMAGE = 'projet_devops_gestionemploye_backend'
-        VERSION = '1.1'
+        VERSION = '1.5'
     }
 
     stages {
