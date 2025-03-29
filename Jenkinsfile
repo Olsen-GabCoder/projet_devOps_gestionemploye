@@ -27,11 +27,12 @@ pipeline {
 					// Obtient le chemin absolu du répertoire BACKEND
                     def backendDir = "${WORKSPACE}/BACKEND"
 
-                    // Utilise la variable d'environnement SONAR_TOKEN
-                    if (isUnix()) {
-						sh "cd ${backendDir} && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000 -Dsonar.token=${env.SONAR_TOKEN}"
-                    } else {
-						bat "cd ${backendDir} && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000 -Dsonar.token=${env.SONAR_TOKEN}"
+					withSonarQubeEnv('SonarQube') { // Remplace 'sonarqube' par le nom de ton installation SonarQube dans Jenkins
+                        if (isUnix()) {
+						sh "cd ${backendDir} && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000"
+                        } else {
+						bat "cd ${backendDir} && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000"
+                        }
                     }
                 }
             }
