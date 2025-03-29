@@ -22,11 +22,14 @@ pipeline {
         stage('SonarQube Analysis') {
 			steps {
 				script {
-					withSonarQubeEnv('sonarqube') { // Le nom que tu as configuré dans Jenkins
+                    // Obtient le chemin absolu du répertoire BACKEND
+                    def backendDir = "${WORKSPACE}/BACKEND"
+
+					withSonarQubeEnv('sonarqube') { // Remplace 'sonarqube' par le nom de ton installation SonarQube dans Jenkins
                         if (isUnix()) {
-						sh 'cd BACKEND && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sonarqube'
+						sh "cd ${backendDir} && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000 -Dsonar.token=${env.SONAR_TOKEN}"
                         } else {
-						bat 'cd BACKEND && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sonarqube'
+						bat "cd ${backendDir} && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000 -Dsonar.token=${env.SONAR_TOKEN}"
                         }
                     }
                 }
@@ -49,10 +52,13 @@ pipeline {
         stage('Build Frontend') {
 			steps {
 				script {
+                    // Obtient le chemin absolu du répertoire frontend
+                    def frontendDir = "${WORKSPACE}/frontend"
+
 					if (isUnix()) {
-						sh 'cd frontend && npm install && npm run build --prod'
+						sh "cd ${frontendDir} && npm install && npm run build --prod"
                     } else {
-						bat 'cd frontend && npm install && npm run build --prod'
+						bat "cd ${frontendDir} && npm install && npm run build --prod"
                     }
                 }
             }
@@ -61,10 +67,13 @@ pipeline {
         stage('Build Backend') {
 			steps {
 				script {
+                    // Obtient le chemin absolu du répertoire BACKEND
+                    def backendDir = "${WORKSPACE}/BACKEND"
+
 					if (isUnix()) {
-						sh 'cd BACKEND && mvn clean install package'
+						sh "cd ${backendDir} && mvn clean install package"
                     } else {
-						bat 'cd BACKEND && mvn clean install package'
+						bat "cd ${backendDir} && mvn clean install package"
                     }
                 }
             }
@@ -73,10 +82,13 @@ pipeline {
         stage('Tests Unitaires') {
 			steps {
 				script {
+                    // Obtient le chemin absolu du répertoire BACKEND
+                    def backendDir = "${WORKSPACE}/BACKEND"
+
 					if (isUnix()) {
-						sh 'cd BACKEND && mvn test'
+						sh "cd ${backendDir} && mvn test"
                     } else {
-						bat 'cd BACKEND && mvn test'
+						bat "cd ${backendDir} && mvn test"
                     }
                 }
             }
