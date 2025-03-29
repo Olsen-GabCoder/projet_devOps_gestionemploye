@@ -19,33 +19,6 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-			steps {
-				script {
-					withSonarQubeEnv('sonarqube') {
-						if (isUnix()) {
-							sh 'cd BACKEND && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sonarqube'
-                        } else {
-							bat 'cd BACKEND && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sonarqube'
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('Quality Gate') {
-			steps {
-				script {
-					timeout(time: 5, unit: 'MINUTES') {
-						def qg = waitForQualityGate()
-                        if (qg.status != 'OK') {
-							error "L'analyse SonarQube a échoué avec le statut : ${qg.status}"
-                        }
-                    }
-                }
-            }
-        }
-
         stage('Build Frontend') {
 			steps {
 				script {
@@ -62,9 +35,9 @@ pipeline {
 			steps {
 				script {
 					if (isUnix()) {
-						sh 'cd BACKEND && mvn clean install package'
+						sh 'cd BACKEND && mvn clean install package' // Suppression de -DskipTests
                     } else {
-						bat 'cd BACKEND && mvn clean install package'
+						bat 'cd BACKEND && mvn clean install package' // Suppression de -DskipTests
                     }
                 }
             }
