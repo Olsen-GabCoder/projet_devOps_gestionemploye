@@ -10,7 +10,8 @@ pipeline {
         FRONTEND_IMAGE = 'projet_devops_gestionemploye_frontend'
         BACKEND_IMAGE = 'projet_devops_gestionemploye_backend'
         VERSION = '1.5'
-        SONAR_TOKEN = credentials('sonarqube-token')  // Utilisation de credentials sécurisées dans Jenkins
+        // NE PAS METTRE LE TOKEN ICI !
+        // SONAR_TOKEN = "votre_token_sonarqube"  <- Mauvaise pratique !
     }
 
     stages {
@@ -23,16 +24,14 @@ pipeline {
         stage('SonarQube Analysis') {
 			steps {
 				script {
-					def backendDir = "${WORKSPACE}/BACKEND"
-                    def frontendDir = "${WORKSPACE}/frontend"
+					// Obtient le chemin absolu du répertoire BACKEND
+                    def backendDir = "${WORKSPACE}/BACKEND"
 
-                    withSonarQubeEnv('SonarQube') { // Remplacer par le nom de ton installation SonarQube dans Jenkins
+					withSonarQubeEnv('SonarQube') { // Remplace 'sonarqube' par le nom de ton installation SonarQube dans Jenkins
                         if (isUnix()) {
-						sh "cd ${backendDir} && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000 -Dsonar.login=${SONAR_TOKEN}"
-                            sh "cd ${frontendDir} && sonar-scanner -Dsonar.projectKey=projet_devops_gestionemploye_frontend -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=${SONAR_TOKEN}"
+						sh "cd ${backendDir} && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000"
                         } else {
-						bat "cd ${backendDir} && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000 -Dsonar.login=%SONAR_TOKEN%"
-                            bat "cd ${frontendDir} && sonar-scanner -Dsonar.projectKey=projet_devops_gestionemploye_frontend -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=%SONAR_TOKEN%"
+						bat "cd ${backendDir} && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000"
                         }
                     }
                 }
@@ -55,7 +54,9 @@ pipeline {
         stage('Build Frontend') {
 			steps {
 				script {
-					def frontendDir = "${WORKSPACE}/frontend"
+					// Obtient le chemin absolu du répertoire frontend
+                    def frontendDir = "${WORKSPACE}/frontend"
+
                     if (isUnix()) {
 						sh "cd ${frontendDir} && npm install && npm run build --prod"
                     } else {
@@ -68,7 +69,9 @@ pipeline {
         stage('Build Backend') {
 			steps {
 				script {
-					def backendDir = "${WORKSPACE}/BACKEND"
+					// Obtient le chemin absolu du répertoire BACKEND
+                    def backendDir = "${WORKSPACE}/BACKEND"
+
                     if (isUnix()) {
 						sh "cd ${backendDir} && mvn clean install package"
                     } else {
@@ -81,7 +84,9 @@ pipeline {
         stage('Tests Unitaires') {
 			steps {
 				script {
-					def backendDir = "${WORKSPACE}/BACKEND"
+					// Obtient le chemin absolu du répertoire BACKEND
+                    def backendDir = "${WORKSPACE}/BACKEND"
+
                     if (isUnix()) {
 						sh "cd ${backendDir} && mvn test"
                     } else {
