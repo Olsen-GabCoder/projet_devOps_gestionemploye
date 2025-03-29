@@ -24,9 +24,9 @@ pipeline {
 				script {
 					withSonarQubeEnv('sonarqube1') { // Le nom que tu as configuré dans Jenkins
                         if (isUnix()) {
-						sh 'cd BACKEND && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sonarqube1'
+						sh 'cd BACKEND && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sonarqube'
                         } else {
-						bat 'cd BACKEND && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sonarqube1'
+						bat 'cd BACKEND && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sonarqube'
                         }
                     }
                 }
