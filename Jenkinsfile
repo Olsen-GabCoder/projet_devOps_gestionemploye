@@ -10,6 +10,8 @@ pipeline {
         FRONTEND_IMAGE = 'projet_devops_gestionemploye_frontend'
         BACKEND_IMAGE = 'projet_devops_gestionemploye_backend'
         VERSION = '1.5'
+        // NE PAS METTRE LE TOKEN ICI !
+        // SONAR_TOKEN = "votre_token_sonarqube"  <- Mauvaise pratique !
     }
 
     stages {
@@ -22,15 +24,14 @@ pipeline {
         stage('SonarQube Analysis') {
 			steps {
 				script {
-                    // Obtient le chemin absolu du répertoire BACKEND
+					// Obtient le chemin absolu du répertoire BACKEND
                     def backendDir = "${WORKSPACE}/BACKEND"
 
-					withSonarQubeEnv('sonarqube') { // Remplace 'sonarqube' par le nom de ton installation SonarQube dans Jenkins
-                        if (isUnix()) {
+                    // Utilise la variable d'environnement SONAR_TOKEN
+                    if (isUnix()) {
 						sh "cd ${backendDir} && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000 -Dsonar.token=${env.SONAR_TOKEN}"
-                        } else {
+                    } else {
 						bat "cd ${backendDir} && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000 -Dsonar.token=${env.SONAR_TOKEN}"
-                        }
                     }
                 }
             }
@@ -52,10 +53,10 @@ pipeline {
         stage('Build Frontend') {
 			steps {
 				script {
-                    // Obtient le chemin absolu du répertoire frontend
+					// Obtient le chemin absolu du répertoire frontend
                     def frontendDir = "${WORKSPACE}/frontend"
 
-					if (isUnix()) {
+                    if (isUnix()) {
 						sh "cd ${frontendDir} && npm install && npm run build --prod"
                     } else {
 						bat "cd ${frontendDir} && npm install && npm run build --prod"
@@ -67,10 +68,10 @@ pipeline {
         stage('Build Backend') {
 			steps {
 				script {
-                    // Obtient le chemin absolu du répertoire BACKEND
+					// Obtient le chemin absolu du répertoire BACKEND
                     def backendDir = "${WORKSPACE}/BACKEND"
 
-					if (isUnix()) {
+                    if (isUnix()) {
 						sh "cd ${backendDir} && mvn clean install package"
                     } else {
 						bat "cd ${backendDir} && mvn clean install package"
@@ -82,10 +83,10 @@ pipeline {
         stage('Tests Unitaires') {
 			steps {
 				script {
-                    // Obtient le chemin absolu du répertoire BACKEND
+					// Obtient le chemin absolu du répertoire BACKEND
                     def backendDir = "${WORKSPACE}/BACKEND"
 
-					if (isUnix()) {
+                    if (isUnix()) {
 						sh "cd ${backendDir} && mvn test"
                     } else {
 						bat "cd ${backendDir} && mvn test"
