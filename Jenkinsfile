@@ -11,7 +11,7 @@ pipeline {
         BACKEND_IMAGE = 'projet_devops_gestionemploye_backend'
         VERSION = '1.5'
         // NE PAS METTRE LE TOKEN ICI !
-        // SONAR_TOKEN = "votre_token_sonarqube"  <- Mauvaise pratique !
+        // SONAR_TOKEN = "votre_token_sonarqube"  <- Mauvaise pratique, ne surtout pas le faire !
     }
 
     stages {
