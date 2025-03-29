@@ -3,6 +3,7 @@ pipeline {
 
     tools {
 		maven 'Maven 3.9.9'
+		sonarqube 'sonarqube'
     }
 
     environment {
@@ -16,6 +17,33 @@ pipeline {
 		stage('Checkout') {
 			steps {
 				git branch: 'master', url: 'https://github.com/Olsen-GabCoder/projet_devOps_gestionemploye.git'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+			steps {
+				script {
+					withSonarQubeEnv('sonarqube') {
+						if (isUnix()) {
+							sh 'cd BACKEND && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sonarqube'
+                        } else {
+							bat 'cd BACKEND && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sonarqube'
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+			steps {
+				script {
+					timeout(time: 5, unit: 'MINUTES') {
+						def qg = waitForQualityGate()
+                        if (qg.status != 'OK') {
+							error "L'analyse SonarQube a échoué avec le statut : ${qg.status}"
+                        }
+                    }
+                }
             }
         }
 
@@ -35,10 +63,27 @@ pipeline {
 			steps {
 				script {
 					if (isUnix()) {
-						sh 'cd BACKEND && mvn clean install package -DskipTests'
+						sh 'cd BACKEND && mvn clean install package'
                     } else {
-						bat 'cd BACKEND && mvn clean install package -DskipTests'
+						bat 'cd BACKEND && mvn clean install package'
                     }
+                }
+            }
+        }
+
+        stage('Tests Unitaires') {
+			steps {
+				script {
+					if (isUnix()) {
+						sh 'cd BACKEND && mvn test'
+                    } else {
+						bat 'cd BACKEND && mvn test'
+                    }
+                }
+            }
+            post {
+				always {
+					archiveArtifacts artifacts: 'BACKEND/target/surefire-reports/*.xml', allowEmptyArchive: true
                 }
             }
         }
