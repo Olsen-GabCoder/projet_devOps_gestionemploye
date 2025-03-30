@@ -30,9 +30,6 @@ pipeline {
                     withSonarQubeEnv('SonarQube') { // Remplacez 'SonarQube' par le nom de ton installation SonarQube dans Jenkins
                         // Analyse du Backend (Maven)
                         bat "cd ${backendDir} && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000"
-
-                        // Analyse du Frontend (SonarQube Scanner)
-                        bat "cd ${frontendDir} && sonar-scanner -Dsonar.projectKey=projet_devops_gestionemploye_frontend -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000"
                     }
                 }
             }
