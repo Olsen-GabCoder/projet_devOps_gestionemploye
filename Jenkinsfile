@@ -6,7 +6,7 @@ pipeline {
     }
 
     environment {
-		// PATH = "C:\\Program Files\\Git\\bin;${env.PATH};C:\\Program Files\\Docker\\Docker\\resources\\bin" // Suppression de la variable PATH locale
+		PATH = "C:\\Program Files\\Git\\bin;${env.PATH};C:\\Program Files\\Docker\\Docker\\resources\\bin"
         FRONTEND_IMAGE = 'projet_devops_gestionemploye_frontend'
         BACKEND_IMAGE = 'projet_devops_gestionemploye_backend'
         VERSION = '1.5'
@@ -27,9 +27,11 @@ pipeline {
 					def backendDir = "${WORKSPACE}/BACKEND"
                     def frontendDir = "${WORKSPACE}/frontend"
 
-                    withSonarQubeEnv('SonarQube') { // Remplacez 'SonarQube' par le nom de ton installation SonarQube dans Jenkins
-                        // Analyse du Backend (Maven)
+                    withSonarQubeEnv('SonarQube') {
+						// Analyse du Backend (Maven)
                         bat "cd ${backendDir} && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000"
+
+                        // Analyse du Frontend supprimée
                     }
                 }
             }
