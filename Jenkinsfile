@@ -1,12 +1,16 @@
 pipeline {
 	agent any
 
+    tools {
+		maven 'Maven 3.9.9'
+    }
+
     environment {
 		PATH = "C:\\Program Files\\Git\\bin;${env.PATH};C:\\Program Files\\Docker\\Docker\\resources\\bin"
         FRONTEND_IMAGE = 'projet_devops_gestionemploye_frontend'
         BACKEND_IMAGE = 'projet_devops_gestionemploye_backend'
         VERSION = '1.5'
-        // NE PAS METTRE LE TOKEN ICI .!
+        // NE PAS METTRE LE TOKEN ICI !
         // SONAR_TOKEN = "votre_token_sonarqube"  <- Mauvaise pratique !
     }
 
@@ -20,14 +24,15 @@ pipeline {
         stage('SonarQube Analysis') {
 			steps {
 				script {
-					def backendDir = "${WORKSPACE}/BACKEND"
-                    def frontendDir = "${WORKSPACE}/frontend"
+					// Obtient le chemin absolu du répertoire BACKEND
+                    def backendDir = "${WORKSPACE}/BACKEND"
 
-                    withSonarQubeEnv('SonarQube') {
-						// Analyse du Backend (Maven)
-                        bat "cd ${backendDir} && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000"
-
-                        // Analyse du Frontend supprimée
+					withSonarQubeEnv('SonarQube') { // Remplace 'sonarqube' par le nom de ton installation SonarQube dans Jenkins
+                        if (isUnix()) {
+						sh "cd ${backendDir} && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000"
+                        } else {
+						bat "cd ${backendDir} && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000"
+                        }
                     }
                 }
             }
@@ -49,11 +54,14 @@ pipeline {
         stage('Build Frontend') {
 			steps {
 				script {
-					def frontendDir = "${WORKSPACE}/frontend"
-                    bat "echo Frontend directory: ${frontendDir}" // Affiche le chemin absolu
+					// Obtient le chemin absolu du répertoire frontend
+                    def frontendDir = "${WORKSPACE}/frontend"
 
-                    bat "cd ${frontendDir} && \"C:\\Program Files\\nodejs\\npm.cmd\" install"
-                    bat "cd ${frontendDir} && \"C:\\Program Files\\nodejs\\npm.cmd\" run build --prod"
+                    if (isUnix()) {
+						sh "cd ${frontendDir} && npm install && npm run build --prod"
+                    } else {
+						bat "cd ${frontendDir} && npm install && npm run build --prod"
+                    }
                 }
             }
         }
@@ -61,8 +69,14 @@ pipeline {
         stage('Build Backend') {
 			steps {
 				script {
-					def backendDir = "${WORKSPACE}/BACKEND"
-                    bat "cd ${backendDir} && mvn clean install package"
+					// Obtient le chemin absolu du répertoire BACKEND
+                    def backendDir = "${WORKSPACE}/BACKEND"
+
+                    if (isUnix()) {
+						sh "cd ${backendDir} && mvn clean install package"
+                    } else {
+						bat "cd ${backendDir} && mvn clean install package"
+                    }
                 }
             }
         }
@@ -70,8 +84,14 @@ pipeline {
         stage('Tests Unitaires') {
 			steps {
 				script {
-					def backendDir = "${WORKSPACE}/BACKEND"
-                    bat "cd ${backendDir} && mvn test"
+					// Obtient le chemin absolu du répertoire BACKEND
+                    def backendDir = "${WORKSPACE}/BACKEND"
+
+                    if (isUnix()) {
+						sh "cd ${backendDir} && mvn test"
+                    } else {
+						bat "cd ${backendDir} && mvn test"
+                    }
                 }
             }
             post {
@@ -84,12 +104,17 @@ pipeline {
         stage('Build Docker Images') {
 			steps {
 				script {
-					def backendDir = "${WORKSPACE}/BACKEND"
-                    def frontendDir = "${WORKSPACE}/frontend"
-                    bat """
-                        docker build -t %BACKEND_IMAGE%:%VERSION% ${backendDir}
-                        docker build -t %FRONTEND_IMAGE%:%VERSION% ${frontendDir}
-                    """
+					if (isUnix()) {
+						sh """
+                            docker build -t ${BACKEND_IMAGE}:${VERSION} ./BACKEND
+                            docker build -t ${FRONTEND_IMAGE}:${VERSION} ./frontend
+                        """
+                    } else {
+						bat """
+                            docker build -t %BACKEND_IMAGE%:%VERSION% ./BACKEND
+                            docker build -t %FRONTEND_IMAGE%:%VERSION% ./frontend
+                        """
+                    }
                 }
             }
         }
@@ -97,8 +122,13 @@ pipeline {
         stage('Deploy') {
 			steps {
 				script {
-					bat 'docker-compose -f docker-compose.yml down --remove-orphans'
-                    bat 'docker-compose -f docker-compose.yml up -d'
+					if (isUnix()) {
+						sh 'docker-compose -f docker-compose.yml down --remove-orphans'
+                        sh 'docker-compose -f docker-compose.yml up -d'
+                    } else {
+						bat 'docker-compose -f docker-compose.yml down --remove-orphans'
+                        bat 'docker-compose -f docker-compose.yml up -d'
+                    }
                 }
             }
         }
