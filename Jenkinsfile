@@ -23,11 +23,13 @@ pipeline {
 					def backendDir = "${WORKSPACE}/BACKEND"
                     def frontendDir = "${WORKSPACE}/frontend"
 
-                    // Analyse du Backend (Maven)
-                    bat "cd ${backendDir} && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000"
+                    withSonarQubeEnv('SonarQube') { // Remettre cette ligne !
+                        // Analyse du Backend (Maven)
+                        bat "cd ${backendDir} && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000"
 
-                    // Analyse du Frontend (SonarQube Scanner)
-                    bat "cd ${frontendDir} && sonar-scanner -Dsonar.projectKey=projet_devops_gestionemploye_frontend -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000"
+                        // Analyse du Frontend (SonarQube Scanner)
+                        bat "cd ${frontendDir} && sonar-scanner -Dsonar.projectKey=projet_devops_gestionemploye_frontend -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000"
+                    }
                 }
             }
         }
@@ -71,11 +73,11 @@ pipeline {
                     bat "cd ${backendDir} && mvn test"
                 }
             }
-                        post {
+            post {
 				always {
 					archiveArtifacts artifacts: 'BACKEND/target/surefire-reports/*.xml', allowEmptyArchive: true
-                            }
-                        }
+                }
+            }
         }
 
         stage('Build Docker Images') {
