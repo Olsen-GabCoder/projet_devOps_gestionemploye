@@ -2,7 +2,8 @@ pipeline {
 	agent any
 
     tools {
-		maven 'Maven 3.9.9'
+		maven 'Maven 3.9.9'  // Configuration de Maven
+        nodejs 'NodeJS'  // Ajoute la configuration de Node.js ici
     }
 
     environment {
@@ -10,8 +11,6 @@ pipeline {
         FRONTEND_IMAGE = 'projet_devops_gestionemploye_frontend'
         BACKEND_IMAGE = 'projet_devops_gestionemploye_backend'
         VERSION = '1.5'
-        // NE PAS METTRE LE TOKEN ICI !
-        // SONAR_TOKEN = "votre_token_sonarqube"  <- Mauvaise pratique !
     }
 
     stages {
@@ -24,14 +23,12 @@ pipeline {
         stage('SonarQube Analysis') {
 			steps {
 				script {
-					// Obtient le chemin absolu du répertoire BACKEND
-                    def backendDir = "${WORKSPACE}/BACKEND"
-
-					withSonarQubeEnv('SonarQube') { // Remplace 'sonarqube' par le nom de ton installation SonarQube dans Jenkins
-                        if (isUnix()) {
-						sh "cd ${backendDir} && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000"
+					def backendDir = "${WORKSPACE}/BACKEND"
+                    withSonarQubeEnv('SonarQube') {
+						if (isUnix()) {
+							sh "cd ${backendDir} && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000"
                         } else {
-						bat "cd ${backendDir} && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000"
+							bat "cd ${backendDir} && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000"
                         }
                     }
                 }
@@ -54,9 +51,9 @@ pipeline {
         stage('Build Frontend') {
 			steps {
 				script {
-					// Obtient le chemin absolu du répertoire frontend
-                    def frontendDir = "${WORKSPACE}/frontend"
+					def frontendDir = "${WORKSPACE}/frontend"
 
+                    // Utilisation de npm après l'installation de Node.js dans Jenkins
                     if (isUnix()) {
 						sh "cd ${frontendDir} && npm install && npm run build --prod"
                     } else {
@@ -69,9 +66,7 @@ pipeline {
         stage('Build Backend') {
 			steps {
 				script {
-					// Obtient le chemin absolu du répertoire BACKEND
-                    def backendDir = "${WORKSPACE}/BACKEND"
-
+					def backendDir = "${WORKSPACE}/BACKEND"
                     if (isUnix()) {
 						sh "cd ${backendDir} && mvn clean install package"
                     } else {
@@ -84,9 +79,7 @@ pipeline {
         stage('Tests Unitaires') {
 			steps {
 				script {
-					// Obtient le chemin absolu du répertoire BACKEND
-                    def backendDir = "${WORKSPACE}/BACKEND"
-
+					def backendDir = "${WORKSPACE}/BACKEND"
                     if (isUnix()) {
 						sh "cd ${backendDir} && mvn test"
                     } else {
