@@ -3,7 +3,7 @@ pipeline {
 
     tools {
 		maven 'Maven 3.9.9'  // Configuration de Maven
-        nodejs 'NodeJS'  // Ajoute la configuration de Node.js ici
+        nodejs 'NodeJS'  // version stable et sans echec de mon pipeline
     }
 
     environment {
