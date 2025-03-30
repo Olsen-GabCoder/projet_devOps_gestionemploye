@@ -2,16 +2,15 @@ pipeline {
 	agent any
 
     tools {
-		maven 'Maven 3.9.9'
+		maven 'Maven 3.9.9' // Assurez-vous que Maven est bien configuré dans Jenkins
+        nodejs 'NodeJS' // Assurez-vous d'avoir configuré NodeJS dans Jenkins
     }
 
     environment {
-		PATH = "C:\\Program Files\\Git\\bin;${env.PATH};C:\\Program Files\\Docker\\Docker\\resources\\bin"
+		PATH = "C:\\Program Files\\Git\\bin;C:\\Program Files\\Docker\\Docker\\resources\\bin;C:\\Program Files\\nodejs;${env.PATH}" // Ajout de Node.js dans le PATH
         FRONTEND_IMAGE = 'projet_devops_gestionemploye_frontend'
         BACKEND_IMAGE = 'projet_devops_gestionemploye_backend'
         VERSION = '1.5'
-        // NE PAS METTRE LE TOKEN ICI !
-        // SONAR_TOKEN = "votre_token_sonarqube"  <- Mauvaise pratique, ne surtout pas le faire !
     }
 
     stages {
@@ -27,7 +26,7 @@ pipeline {
 					// Obtient le chemin absolu du répertoire BACKEND
                     def backendDir = "${WORKSPACE}/BACKEND"
 
-					withSonarQubeEnv('SonarQube') { // Remplace 'sonarqube' par le nom de ton installation SonarQube dans Jenkins
+                    withSonarQubeEnv('SonarQube') { // Remplace 'SonarQube' par le nom de ton installation SonarQube dans Jenkins
                         if (isUnix()) {
 						sh "cd ${backendDir} && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000"
                         } else {
