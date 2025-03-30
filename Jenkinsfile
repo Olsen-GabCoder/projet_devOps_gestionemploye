@@ -1,6 +1,10 @@
 pipeline {
 	agent any
 
+    tools {
+		maven 'M3' // Remplacez 'M3' par le nom de votre installation Maven dans Jenkins
+    }
+
     environment {
 		PATH = "C:\\Program Files\\Git\\bin;${env.PATH};C:\\Program Files\\Docker\\Docker\\resources\\bin"
         FRONTEND_IMAGE = 'projet_devops_gestionemploye_frontend'
@@ -23,12 +27,16 @@ pipeline {
 					def backendDir = "${WORKSPACE}/BACKEND"
                     def frontendDir = "${WORKSPACE}/frontend"
 
-                    withSonarQubeEnv('SonarQube') { // Remettre cette ligne !
+                    withSonarQubeEnv('SonarQube') { // Remplacez 'SonarQube' par le nom de ton installation SonarQube dans Jenkins
                         // Analyse du Backend (Maven)
                         bat "cd ${backendDir} && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000"
 
-                        // Analyse du Frontend (SonarQube Scanner)
-                        bat "cd ${frontendDir} && sonar-scanner -Dsonar.projectKey=projet_devops_gestionemploye_frontend -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000"
+                        // Définit la variable path, en prenant soin de rajouter le PATH existant, et on ajoute l'endroit où se situe sonar scanner.
+                        withEnv(["PATH+MAVEN=${tool 'M3'}/bin", "PATH+SONAR=${env.SONAR_SCANNER_HOME}/bin"]) {
+
+						// Analyse du Frontend (SonarQube Scanner)
+                            bat "cd ${frontendDir} && sonar-scanner -Dsonar.projectKey=projet_devops_gestionemploye_frontend -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000"
+                        }
                     }
                 }
             }
