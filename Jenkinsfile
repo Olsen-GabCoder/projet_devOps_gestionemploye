@@ -71,11 +71,11 @@ pipeline {
                     bat "cd ${backendDir} && mvn test"
                 }
             }
-        }
-        post {
-			always {
-				archiveArtifacts artifacts: 'BACKEND/target/surefire-reports/*.xml', allowEmptyArchive: true
-            }
+                        post {
+				always {
+					archiveArtifacts artifacts: 'BACKEND/target/surefire-reports/*.xml', allowEmptyArchive: true
+                            }
+                        }
         }
 
         stage('Build Docker Images') {
