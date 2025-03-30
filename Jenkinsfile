@@ -1,10 +1,6 @@
 pipeline {
 	agent any
 
-    tools {
-		maven 'M3' // Remplacez 'M3' par le nom de votre installation Maven dans Jenkins
-    }
-
     environment {
 		PATH = "C:\\Program Files\\Git\\bin;${env.PATH};C:\\Program Files\\Docker\\Docker\\resources\\bin"
         FRONTEND_IMAGE = 'projet_devops_gestionemploye_frontend'
@@ -54,6 +50,8 @@ pipeline {
 			steps {
 				script {
 					def frontendDir = "${WORKSPACE}/frontend"
+                    bat "echo Frontend directory: ${frontendDir}" // Affiche le chemin absolu
+
                     bat "cd ${frontendDir} && \"C:\\Program Files\\nodejs\\npm.cmd\" install"
                     bat "cd ${frontendDir} && \"C:\\Program Files\\nodejs\\npm.cmd\" run build --prod"
                 }
