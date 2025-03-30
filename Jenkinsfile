@@ -6,7 +6,7 @@ pipeline {
     }
 
     environment {
-		PATH = "C:\\Program Files\\Git\\bin;${env.PATH};C:\\Program Files\\Docker\\Docker\\resources\\bin"
+		// PATH = "C:\\Program Files\\Git\\bin;${env.PATH};C:\\Program Files\\Docker\\Docker\\resources\\bin" // Suppression de la variable PATH locale
         FRONTEND_IMAGE = 'projet_devops_gestionemploye_frontend'
         BACKEND_IMAGE = 'projet_devops_gestionemploye_backend'
         VERSION = '1.5'
@@ -31,12 +31,8 @@ pipeline {
                         // Analyse du Backend (Maven)
                         bat "cd ${backendDir} && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000"
 
-                        // Définit la variable path, en prenant soin de rajouter le PATH existant, et on ajoute l'endroit où se situe sonar scanner.
-                        withEnv(["PATH+MAVEN=${tool 'M3'}/bin", "PATH+SONAR=${env.SONAR_SCANNER_HOME}/bin"]) {
-
-						// Analyse du Frontend (SonarQube Scanner)
-                            bat "cd ${frontendDir} && sonar-scanner -Dsonar.projectKey=projet_devops_gestionemploye_frontend -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000"
-                        }
+                        // Analyse du Frontend (SonarQube Scanner)
+                        bat "cd ${frontendDir} && sonar-scanner -Dsonar.projectKey=projet_devops_gestionemploye_frontend -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000"
                     }
                 }
             }
