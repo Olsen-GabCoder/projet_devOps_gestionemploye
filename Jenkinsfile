@@ -2,12 +2,21 @@ pipeline {
 	agent any
 
     tools {
-		maven 'Maven 3.9.9'  // Configuration de Maven
-        nodejs 'NodeJS'  // version stable et sans echec de mon pipeline
+		// --- AJOUT IMPORTANT ---
+        // Assurez-vous que 'JDK_11' correspond EXACTEMENT au nom que vous avez
+        // configuré dans Administrer Jenkins -> Configuration globale des outils -> JDK
+        jdk 'JDK_11'
+        // --- FIN DE L'AJOUT ---
+
+        maven 'Maven 3.9.9'  // Configuration de Maven existante
+        nodejs 'NodeJS'      // Configuration de NodeJS existante
     }
 
     environment {
-		PATH = "C:\\Program Files\\Git\\bin;${env.PATH};C:\\Program Files\\Docker\\Docker\\resources\\bin"
+		// Note : Il n'est généralement PAS nécessaire d'ajouter manuellement Git au PATH ici
+        // si Git est correctement installé et accessible par l'utilisateur Jenkins.
+        // La modification du PATH pour Docker est correcte si Docker n'est pas géré autrement.
+        PATH = "C:\\Program Files\\Git\\bin;${env.PATH};C:\\Program Files\\Docker\\Docker\\resources\\bin"
         FRONTEND_IMAGE = 'projet_devops_gestionemploye_frontend'
         BACKEND_IMAGE = 'projet_devops_gestionemploye_backend'
         VERSION = '1.5'
@@ -23,12 +32,15 @@ pipeline {
         stage('SonarQube Analysis') {
 			steps {
 				script {
-					def backendDir = "${WORKSPACE}/BACKEND"
+					// Jenkins définira automatiquement JAVA_HOME grâce à la section 'tools'
+                    def backendDir = "${WORKSPACE}/BACKEND"
                     withSonarQubeEnv('SonarQube') {
 						if (isUnix()) {
-							sh "cd ${backendDir} && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000"
+							// Le 'mvn' utilisé ici sera celui trouvé dans le PATH (modifié par l'outil Maven)
+                            sh "cd ${backendDir} && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000"
                         } else {
-							bat "cd ${backendDir} && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000"
+							// Le 'mvn' utilisé ici sera celui trouvé dans le PATH (modifié par l'outil Maven)
+                            bat "cd ${backendDir} && mvn clean verify sonar:sonar -Dsonar.projectKey=projet_devops_gestionemploye -Dsonar.host.url=http://localhost:9000"
                         }
                     }
                 }
@@ -39,10 +51,13 @@ pipeline {
 			steps {
 				script {
 					timeout(time: 5, unit: 'MINUTES') {
-						def qg = waitForQualityGate()
+						// La fonction waitForQualityGate communique avec SonarQube
+                        def qg = waitForQualityGate abortPipeline: true // abortPipeline: true est plus direct
+                        /* // Optionnel: vérifier le statut manuellement si abortPipeline: true ne suffit pas
                         if (qg.status != 'OK') {
-							error "L'analyse SonarQube a échoué avec le statut : ${qg.status}"
+                           error "L'analyse SonarQube a échoué avec le statut : ${qg.status}"
                         }
+                        */
                     }
                 }
             }
@@ -52,8 +67,7 @@ pipeline {
 			steps {
 				script {
 					def frontendDir = "${WORKSPACE}/frontend"
-
-                    // Utilisation de npm après l'installation de Node.js dans Jenkins
+                    // Jenkins utilisera le Node.js/npm de l'outil 'NodeJS'
                     if (isUnix()) {
 						sh "cd ${frontendDir} && npm install && npm run build --prod"
                     } else {
@@ -66,7 +80,8 @@ pipeline {
         stage('Build Backend') {
 			steps {
 				script {
-					def backendDir = "${WORKSPACE}/BACKEND"
+					// Jenkins utilisera le JDK et Maven définis dans 'tools'
+                    def backendDir = "${WORKSPACE}/BACKEND"
                     if (isUnix()) {
 						sh "cd ${backendDir} && mvn clean install package"
                     } else {
@@ -79,7 +94,8 @@ pipeline {
         stage('Tests Unitaires') {
 			steps {
 				script {
-					def backendDir = "${WORKSPACE}/BACKEND"
+					// Jenkins utilisera le JDK et Maven définis dans 'tools'
+                    def backendDir = "${WORKSPACE}/BACKEND"
                     if (isUnix()) {
 						sh "cd ${backendDir} && mvn test"
                     } else {
@@ -89,7 +105,9 @@ pipeline {
             }
             post {
 				always {
-					archiveArtifacts artifacts: 'BACKEND/target/surefire-reports/*.xml', allowEmptyArchive: true
+					// Archive les rapports de test JUnit/Surefire
+                    archiveArtifacts artifacts: 'BACKEND/target/surefire-reports/*.xml', allowEmptyArchive: true
+                    // Vous pourriez aussi utiliser : junit 'BACKEND/target/surefire-reports/*.xml' pour afficher les résultats des tests dans Jenkins
                 }
             }
         }
@@ -97,13 +115,15 @@ pipeline {
         stage('Build Docker Images') {
 			steps {
 				script {
-					if (isUnix()) {
+					// Assurez-vous que 'docker' est accessible (via le PATH modifié dans environment ou autrement)
+                    if (isUnix()) {
 						sh """
-                            docker build -t ${BACKEND_IMAGE}:${VERSION} ./BACKEND
-                            docker build -t ${FRONTEND_IMAGE}:${VERSION} ./frontend
+                            docker build -t ${env.BACKEND_IMAGE}:${env.VERSION} ./BACKEND
+                            docker build -t ${env.FRONTEND_IMAGE}:${env.VERSION} ./frontend
                         """
                     } else {
-						bat """
+						// Utilisation de %VAR% pour les variables d'environnement dans bat
+                        bat """
                             docker build -t %BACKEND_IMAGE%:%VERSION% ./BACKEND
                             docker build -t %FRONTEND_IMAGE%:%VERSION% ./frontend
                         """
@@ -115,7 +135,8 @@ pipeline {
         stage('Deploy') {
 			steps {
 				script {
-					if (isUnix()) {
+					// Assurez-vous que 'docker-compose' est accessible
+                    if (isUnix()) {
 						sh 'docker-compose -f docker-compose.yml down --remove-orphans'
                         sh 'docker-compose -f docker-compose.yml up -d'
                     } else {
